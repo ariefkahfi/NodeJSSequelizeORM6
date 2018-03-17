@@ -20,4 +20,43 @@ const PersonModel = sequelize.define("person",{
     timestamps:false
 });
 
+// sequelize.sync();
+
 // Managed Transaction (auto-callback)
+function doTransaction(){
+sequelize.transaction((tx)=>{
+        return PersonModel.create({
+            name:"aa1"
+        },{
+            transaction:tx
+        })
+    }).then(result=>{
+        console.log("COMMIT_HERE");
+        console.log(result);
+    }).catch(err=>{
+        console.error("ROLLBACK_HERE");
+        console.error(err);
+    })
+}
+// doTransaction();
+
+// Unmanaged Transaction (manual commit and rollback)
+function unManagedTrx(personName){
+    sequelize.transaction().then(tx=>{
+        // transaction logic here
+        // return....
+        PersonModel.create({
+            name: personName
+        },{
+            transaction:tx
+        }).then(()=>{
+            console.log("COMMIT TRANSACTION");
+            return tx.commit();
+        }).catch(err=>{
+            console.log("ROLLBACK TRANSACTION");
+            return tx.rollback();
+        })
+    });
+}
+
+unManagedTrx("aa3");
